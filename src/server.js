@@ -108,7 +108,7 @@ var databaseURL = process.env.MONGO_URL;
 const Database = require('./Database');
 
 Database.connect(databaseURL).then(() => {
-    App.listen(PORT, () => {
+    App.listen(PORT, '0.0.0.0', () => {
         console.log(`The API server is now listening on port ${PORT}`);
     });
 }).catch(err => {
