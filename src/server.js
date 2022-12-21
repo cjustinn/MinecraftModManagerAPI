@@ -50,45 +50,55 @@ App.get("/mod-requests/by-requester", (req, res) => {
     const { target, active } = req.query;
 
     if (!target) { res.status(400).json({ success: false, message: `You must provide a target requester.` }); }
-    
-    Database.getModRequestsByRequester(target, active).then(requests => {
-        if (requests.length > 0) { res.status(200).json({ success: true, _data: requests, message: `Successfully retrieved ${active != undefined && active != null ? (active ? 'active ' : 'inactive ') : 'all '}mod requests from ${target}` }); }
-        else {
-            res.status(400).json({ success: true, _data: requests, message: `${target} ${active != null && active != undefined ? (active ? "has no active mod requests." : "has no inactive mod requests.") : "hasn't submitted any mod requests."}` });
-        }
-    }).catch(err => res.status(500).json({ success: false, message: err }));
+    else {
+
+        Database.getModRequestsByRequester(target, active).then(requests => {
+            if (requests.length > 0) { res.status(200).json({ success: true, _data: requests, message: `Successfully retrieved ${active != undefined && active != null ? (active ? 'active ' : 'inactive ') : 'all '}mod requests from ${target}` }); }
+            else {
+                res.status(400).json({ success: true, _data: requests, message: `${target} ${active != null && active != undefined ? (active ? "has no active mod requests." : "has no inactive mod requests.") : "hasn't submitted any mod requests."}` });
+            }
+        }).catch(err => res.status(500).json({ success: false, message: err }));
+        
+    }
 });
 
 App.post("/mod-requests/add", (req, res) => {
     const { modData } = req.body;
     
     if (!modData) { res.status(400).json({ success: false, message: `You must provide mod data!` }); }
+    else {
 
-    Database.saveModRequest(modData).then(mod => {
-        res.status(201).json({ success: true, _data: mod, message: `You have successfully submitted your mod request!` });
-    }).catch(err => res.status(500).json({ success: false, message: `There was a problem requesting the mod. Please try again!` }));
+        Database.saveModRequest(modData).then(mod => {
+            res.status(201).json({ success: true, _data: mod, message: `You have successfully submitted your mod request!` });
+        }).catch(err => res.status(500).json({ success: false, message: `There was a problem requesting the mod. Please try again!` }));
+
+    }
 });
 
 App.put("/mod-requests/update", (req, res) => {
     const { target, requestData } = req.body;
 
-    if (!target || !requestData) {
-        res.status(400).json({ success: false, message: `You must provide both a target (ObjectId) and updated data.` });
-    }
+    if (!target || !requestData) { res.status(400).json({ success: false, message: `You must provide both a target (ObjectId) and updated data.` }); }
+    else {
 
-    Database.updateModRequest(target, requestData).then(r => {
-        res.status(200).json({ success: true, _data: r, message: `The mod request has been updated successfully.` });
-    }).catch(err => res.status(500).json({ success: false, message: err }));
+        Database.updateModRequest(target, requestData).then(r => {
+            res.status(200).json({ success: true, _data: r, message: `The mod request has been updated successfully.` });
+        }).catch(err => res.status(500).json({ success: false, message: err }));
+
+    }
 })
 
 App.post("/mods/add", (req, res) => {
     const { modData } = req.body;
 
     if (!modData) { res.status(400).json({ success: false, message: `You must provide mod data to be saved!` }) }
+    else {
 
-    Database.saveMod(modData).then(r => {
-        res.status(201).json({ success: true, _data: r, message: `The mod has been saved successfully.` })
-    }).catch(err => res.status(500).json({ success: false, message: err }));
+        Database.saveMod(modData).then(r => {
+            res.status(201).json({ success: true, _data: r, message: `The mod has been saved successfully.` })
+        }).catch(err => res.status(500).json({ success: false, message: err }));
+
+    }
 })
 
 App.get("/mods/all", (req, res) => {
@@ -99,6 +109,23 @@ App.get("/mods/all", (req, res) => {
             res.status(400).json({ success: true, _data: r, message: `There are currently no approved mods.` });
         }
     }).catch(err => res.status(500).json({ success: false, message: err }))
+})
+
+App.get("/mods/search", (req, res) => {
+    const { target } = req.query;
+
+    if (!target) { res.status(400).json({ success: false, message: `You must provide a search query as the target value.` }); }
+    else {
+
+        Database.getModsByName(target).then(mods => {
+            if (mods.length > 0) {
+                res.status(200).json({ success: true, _data: mods, message: `Successfully retrieved all mods which matched the search query.` });
+            } else {
+                res.status(400).json({ success: true, _data: [], message: `There are no mods which match the search query.` });
+            }
+        }).catch(err => res.status(500).json({ success: false, message: err }));
+
+    }
 })
 
 // Server start-up

@@ -188,3 +188,9 @@ module.exports.getAllMods = () => {
         Mods.find({}).sort('name').exec().then(_mods => resolve(_mods)).catch(err => reject(err));
     })
 }
+
+module.exports.getModsByName = (searchValue) => {
+    return new Promise((resolve, reject) => {
+        Mods.find({ name: new RegExp(searchValue, 'i') }).sort('name').exec().then(_mods => resolve(_mods)).catch(err => reject(err));
+    });
+}
