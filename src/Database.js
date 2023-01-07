@@ -32,6 +32,7 @@ let modRequestSchema = new Schema({
         default: true
     }
 });
+
     // Added mod
 let modSchema = new Schema({
     name: {
@@ -68,7 +69,7 @@ let Mods;
 // Exported functions for handling database queries and connection establishment.
 
 /**
- * 
+ * Creates a connection to the Mongo database and makes the different collections accessible by variable.
  * @param {String} connectionString The MongoDB connection URI string.
  * @returns {Promise<null>} A promise which can be resolved to indicate success or failure.
  */
@@ -91,8 +92,8 @@ module.exports.connect = (connectionString) => {
     });
 }
 
-// Mod Request Functions
-    // POST
+    // Mod Request Functions
+// POST
 module.exports.saveModRequest = (requestData) => {
     return new Promise((resolve, reject) => {
         let newRequest = new ModRequests(requestData);
@@ -165,7 +166,8 @@ module.exports.deleteModRequest = (target) => {
     });
 }
 
-// Mod Functions
+    // Mod Functions
+// POST
 module.exports.saveMod = modData => {
     return new Promise((resolve, reject) => {
         let newMod = new Mods(modData);
@@ -183,12 +185,14 @@ module.exports.saveMod = modData => {
     });
 }
 
+// GET - ALL
 module.exports.getAllMods = () => {
     return new Promise((resolve, reject) => {
         Mods.find({}).sort('name').exec().then(_mods => resolve(_mods)).catch(err => reject(err));
     })
 }
 
+// GET - BY NAME
 module.exports.getModsByName = (searchValue) => {
     return new Promise((resolve, reject) => {
         Mods.find({ name: new RegExp(searchValue, 'i') }).sort('name').exec().then(_mods => resolve(_mods)).catch(err => reject(err));

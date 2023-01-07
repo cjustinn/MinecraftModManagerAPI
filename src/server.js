@@ -1,21 +1,22 @@
-// Package imports.
+    // Package imports.
 const Express = require('express');
 const Cors = require('cors');
 const Dotenv = require('dotenv');
 
-// App configuration
+    // App configuration
 const App = Express();
 App.use(Cors());
 App.use(Express.json());
 
 Dotenv.config();
 
-// Routes
+    // Route definitions
+// Generic root route.
 App.get("/", (req, res) => {
     res.status(200).json({ status: "running" })
 });
 
-    // Mod Requests
+// MOD REQUESTS - GET - ACTIVE
 App.get("/mod-requests/active", (req, res) => {
     Database.getActiveModRequests().then(requests => {
         if (requests.length > 0) {
@@ -26,6 +27,7 @@ App.get("/mod-requests/active", (req, res) => {
     }).catch(err => res.status(500).json({ success: false, message: err}));
 });
 
+// MOD REQUESTS - GET - INACTIVE
 App.get("/mod-requests/inactive", (req, res) => {
     Database.getInactiveModRequests().then(requests => {
         if (requests.length > 0) {
@@ -36,6 +38,7 @@ App.get("/mod-requests/inactive", (req, res) => {
     }).catch(err => res.status(500).json({ success: false, message: err}));
 });
 
+// MOD REQUESTS - GET - ALL
 App.get("/mod-requests/all", (req, res) => {
     Database.getAllModRequests().then(requests => {
         if (requests.length > 0) {
@@ -46,6 +49,7 @@ App.get("/mod-requests/all", (req, res) => {
     }).catch(err => res.status(500).json({ success: false, message: err}));
 });
 
+// MOD REQUESTS - GET - BY REQUESTER
 App.get("/mod-requests/by-requester", (req, res) => {
     const { target, active } = req.query;
 
@@ -62,6 +66,7 @@ App.get("/mod-requests/by-requester", (req, res) => {
     }
 });
 
+// MOD REQUESTS - POST (Save)
 App.post("/mod-requests/add", (req, res) => {
     const { modData } = req.body;
     
@@ -75,6 +80,7 @@ App.post("/mod-requests/add", (req, res) => {
     }
 });
 
+// MOD REQUESTS - PUT (Update)
 App.put("/mod-requests/update", (req, res) => {
     const { target, requestData } = req.body;
 
@@ -88,6 +94,7 @@ App.put("/mod-requests/update", (req, res) => {
     }
 })
 
+// MODS - POST (Save)
 App.post("/mods/add", (req, res) => {
     const { modData } = req.body;
 
@@ -101,6 +108,7 @@ App.post("/mods/add", (req, res) => {
     }
 })
 
+// MODS - GET - ALL
 App.get("/mods/all", (req, res) => {
     Database.getAllMods().then(r => {
         if (r.length > 0) {
@@ -111,6 +119,7 @@ App.get("/mods/all", (req, res) => {
     }).catch(err => res.status(500).json({ success: false, message: err }))
 })
 
+// MODS - GET - BY NAME
 App.get("/mods/search", (req, res) => {
     const { target } = req.query;
 
@@ -129,15 +138,22 @@ App.get("/mods/search", (req, res) => {
 })
 
 // Server start-up
+// The server should use either the port number provided by environment variable, or 8080 if one isn't provided.
 const PORT = process.env.PORT || 8080;
+
+// Get the connection string from the environment variables to connect to the database.
 var databaseURL = process.env.MONGO_URL;
 
+// All functions defined in ./Database.js which are exported can now be used through this 'Database' variable below.
 const Database = require('./Database');
 
+// Pass the connection string to the connect function from the ./Database.js file.
 Database.connect(databaseURL).then(() => {
+    // Get the Express server to start listening on the provided port, and address '0.0.0.0' (for Railway), if the connection to the Mongo database was successful.
     App.listen(PORT, '0.0.0.0', () => {
         console.log(`The API server is now listening on port ${PORT}`);
     });
 }).catch(err => {
+    // Log the error string in console if something stops the connection to the database from being made.
     console.log(`Could not start the API server...\n\n${err}`);
 })
